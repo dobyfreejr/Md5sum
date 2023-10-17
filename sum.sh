@@ -6,6 +6,12 @@ SOURCE_DIR="/path/to/source_directory"
 # Define the backup directory
 BACKUP_DIR="/path/to/backup_directory"
 
+# Check if the script is running as root; if not, rerun with sudo
+if [ "$(id -u)" -ne 0 ]; then
+    sudo "$0" "$@"
+    exit $?
+fi
+
 # Create the backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
 
@@ -19,11 +25,11 @@ calculate_md5() {
 
 # Check if the last checksums file exists, and if not, create it
 if [ ! -e "$LAST_CHECKSUMS_FILE" ]; then
-    find "$SOURCE_DIR" -type f -exec md5sum {} \; > "$LAST_CHECKSUMS_FILE"
+    sudo find "$SOURCE_DIR" -type f -exec md5sum {} \; > "$LAST_CHECKSUMS_FILE"
 fi
 
 # Calculate the current checksums
-find "$SOURCE_DIR" -type f -exec md5sum {} \; > "$BACKUP_DIR/current_checksums.txt"
+sudo find "$SOURCE_DIR" -type f -exec md5sum {} \; > "$BACKUP_DIR/current_checksums.txt"
 
 # Compare the current checksums with the last ones
 diff -u "$LAST_CHECKSUMS_FILE" "$BACKUP_DIR/current_checksums.txt" > "$BACKUP_DIR/changes.txt"
@@ -41,3 +47,4 @@ rm "$BACKUP_DIR/changes.txt"
 echo "Backup script run on $(date)" >> "$BACKUP_DIR/backup_log.txt"
 echo "Changes:" >> "$BACKUP_DIR/backup_log.txt"
 cat "$BACKUP_DIR/changes.txt" >> "$BACKUP_DIR/backup_log.txt"
+
