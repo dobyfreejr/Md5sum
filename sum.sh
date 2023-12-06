@@ -7,7 +7,7 @@ SOURCE_DIR="/path/to/source_directory"
 BACKUP_DIR="/path/to/backup_directory"
 
 # Check if the script is running as root; if not, rerun with sudo
-if [ "$(id -u)" -ne 0 ]; 
+if [ "$(id -u)" -ne 0 ]; then
     sudo "$0" "$@"
     exit $?
 fi
